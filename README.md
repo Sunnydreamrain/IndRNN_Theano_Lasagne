@@ -55,7 +55,7 @@ For relu, `Uniform(0,1)` is used to make different neurons keep different kinds 
 
 ### 2, Constraint of the recurrent weights  
 For relu, generally it can be set to `[-U_bound, U_bound]` where `U_bound=pow(args.MAG, 1.0 / seq_len)` and `MAG` can be 2 or 10 or others. If the sequence is very long, it can be `[-1, 1]` since it is very close to 1 and the precision of GPU is limited. If the sequence is short such as 20, no constraint is needed. Example of the constraint is shown at [adding.py](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/blob/master/adding/adding.py#L150). By the way, this constraint can also be implemented as a weight decay of ||max(0,|U|-U_bound)||.  
-For simplicity, the constraint can always set to `[-1, 1]` as the difference in performance is small.
+For simplicity, the constraint can always set to `[-1, 1]` as it can keep long-term memory already and the difference in performance is small.
 
 ### 3, Usage of batch normalization (BN)  
 Generally, over 3 layers, BN can help accelerate the training. BN can be used before the activation function or after it. In our experiments, we find it converges faster by putting BN after the activation function.
