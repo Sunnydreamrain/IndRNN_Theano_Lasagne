@@ -22,7 +22,7 @@ Advantages over the RNN and/or LSTM:
 
 Experiments have demonstrated that IndRNN performs much better than the traditional RNN and LSTM models on various tasks such as the adding problem, sequential MNIST classification, language modelling and action recognition.
 
-# Usuage 
+# Usage 
 `IndRNN.py` provides the IndRNN function as described in the paper.  
 `IndRNN_onlyrecurrent.py` provides only the recurrent+activation of the IndRNN function. Therefore, processing of the input with dense connection or convolution operation is needed. This is usedful for adding batch normalization (BN) between the processing of input and activation function.
 
