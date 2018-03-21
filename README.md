@@ -2,7 +2,7 @@
 This code is to implement the IndRNN. It is based on Theano and Lasagne.
 
 Please cite the following paper if you find it useful.  
-Li, Shuai, Wanqing Li, Chris Cook, Ce Zhu, and Yanbo Gao. "Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN." CVPR 2018.
+Shuai Li, Wanqing Li, Chris Cook, Ce Zhu, and Yanbo Gao. "Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN." CVPR 2018.
 
 @article{li2018independently,  
   title={Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN},  
