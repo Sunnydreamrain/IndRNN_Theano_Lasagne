@@ -1,4 +1,4 @@
-# IndRNN (Theano+Lasagne)
+# Independently Recurrent Neural Networks
 This code is to implement the [IndRNN](https://arxiv.org/abs/1803.04831). It is based on Theano and Lasagne.
 
 Please cite the following paper if you find it useful.  
@@ -25,6 +25,13 @@ Experiments have demonstrated that IndRNN performs much better than the traditio
 # Usuage 
 `IndRNN.py` provides the IndRNN function as described in the paper.  
 `IndRNN_onlyrecurrent.py` provides only the recurrent+activation of the IndRNN function. Therefore, processing of the input with dense connection or convolution operation is needed. This is usedful for adding batch normalization (BN) between the processing of input and activation function.
+
+### Requirements  
+[Theano](http://deeplearning.net/software/theano/install.html) and [Lasagne](https://lasagne.readthedocs.io/en/latest/user/installation.html) need to be installed first.  
+```
+pip install --upgrade https://github.com/Theano/Theano/archive/master.zip
+pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip
+```
 
 ## For the adding example:   
 `python -u adding.py`  
@@ -57,3 +64,12 @@ In our experiments, ADAM with a learning rate of 2e-4 works well.
 
 ### 5, Weight decay  
 If weight decay is used, no need to add the recurrent weights.  
+
+# Other implementations
+Tensorflow:  
+[https://github.com/batzner/indrnn](https://github.com/batzner/indrnn)  
+Keras:  
+[https://github.com/titu1994/Keras-IndRNN](https://github.com/titu1994/Keras-IndRNN)  
+Pytorch:  
+[https://github.com/StefOe/indrnn-pytorch](https://github.com/StefOe/indrnn-pytorch)  
+[https://github.com/theSage21/IndRNN](https://github.com/theSage21/IndRNN)  
