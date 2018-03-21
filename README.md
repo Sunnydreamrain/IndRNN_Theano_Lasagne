@@ -1,4 +1,4 @@
-# IndRNN (Theano+Lasagne)
+# Independently Recurrent Neural Networks
 This code is to implement the [IndRNN](https://arxiv.org/abs/1803.04831). It is based on Theano and Lasagne.
 
 Please cite the following paper if you find it useful.  
@@ -22,9 +22,16 @@ Advantages over the RNN and/or LSTM:
 
 Experiments have demonstrated that IndRNN performs much better than the traditional RNN and LSTM models on various tasks such as the adding problem, sequential MNIST classification, language modelling and action recognition.
 
-# Usuage 
+# Usage 
 `IndRNN.py` provides the IndRNN function as described in the paper.  
 `IndRNN_onlyrecurrent.py` provides only the recurrent+activation of the IndRNN function. Therefore, processing of the input with dense connection or convolution operation is needed. This is usedful for adding batch normalization (BN) between the processing of input and activation function.
+
+### Requirements  
+[Theano](http://deeplearning.net/software/theano/install.html) and [Lasagne](https://lasagne.readthedocs.io/en/latest/user/installation.html) need to be installed first.  
+```
+pip install --upgrade https://github.com/Theano/Theano/archive/master.zip
+pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip
+```
 
 ## For the adding example:   
 `python -u adding.py`  
@@ -48,6 +55,7 @@ For relu, `Uniform(0,1)` is used to make different neurons keep different kinds 
 
 ### 2, Constraint of the recurrent weights  
 For relu, generally it can be set to `[-U_bound, U_bound]` where `U_bound=pow(args.MAG, 1.0 / seq_len)` and `MAG` can be 2 or 10 or others. If the sequence is very long, it can be `[-1, 1]` since it is very close to 1 and the precision of GPU is limited. If the sequence is short such as 20, no constraint is needed. Example of the constraint is shown at [adding.py](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/blob/master/adding/adding.py#L150). By the way, this constraint can also be implemented as a weight decay of ||max(0,|U|-U_bound)||.  
+For simplicity, the constraint can always set to `[-1, 1]` as it can keep long-term memory already and the difference in performance is small.
 
 ### 3, Usage of batch normalization (BN)  
 Generally, over 3 layers, BN can help accelerate the training. BN can be used before the activation function or after it. In our experiments, we find it converges faster by putting BN after the activation function.
@@ -57,3 +65,12 @@ In our experiments, ADAM with a learning rate of 2e-4 works well.
 
 ### 5, Weight decay  
 If weight decay is used, no need to add the recurrent weights.  
+
+# Other implementations
+Tensorflow:  
+[https://github.com/batzner/indrnn](https://github.com/batzner/indrnn)  
+Keras:  
+[https://github.com/titu1994/Keras-IndRNN](https://github.com/titu1994/Keras-IndRNN)  
+Pytorch:  
+[https://github.com/StefOe/indrnn-pytorch](https://github.com/StefOe/indrnn-pytorch)  
+[https://github.com/theSage21/IndRNN](https://github.com/theSage21/IndRNN)  
