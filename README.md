@@ -11,6 +11,17 @@ Please cite the following paper if you find it useful.
   year={2018}  
 } 
 
+# Summary  
+In IndRNNs, neurons in each layer are independent from each other, and the cross-channel information is obtained through stacking multiple layers.  
+Advantages over the RNN and/or LSTM:  
+- The gradient backpropagation through time can be regulated to effectively address the gradient vanishing and exploding problems.  
+- Long-term memory can be kept with IndRNNs to process long sequences. Experiments have demonstrated that an IndRNN can well process sequences over 5000 steps.  
+- An IndRNN can work well with non-saturated function such as relu as activation function and be trained robustly.  
+- Multiple layers of IndRNNs can be efficiently stacked, especially with residual connections over layers, to increase the depth of the network. An example of 21 layer-IndRNN is demonstrated in the experiments.  
+- Behaviour of IndRNN neurons in each layer are easy to interpret due to the independence of neurons in each layer.  
+
+Experiments have demonstrated that IndRNN performs much better than the traditional RNN and LSTM models on various tasks such as the adding problem, sequential MNIST classification, language modelling and action recognition.
+
 # Usuage 
 `IndRNN.py` provides the IndRNN function as described in the paper.  
 `IndRNN_onlyrecurrent.py` provides only the recurrent+activation of the IndRNN function. Therefore, processing of the input with dense connection or convolution operation is needed. This is usedful for adding batch normalization (BN) between the processing of input and activation function.
@@ -30,3 +41,19 @@ Example of using GPU: `THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN' 
 For this task, the batch normalization (BN) is used. It can be used before the activation function (relu) or after it. In our experiments, it converges faster by putting BN after the activation function.  
 
 ## Other tasks will come soon.
+
+# Considerations in implementation  
+### 1, Initialization of the recurrent weights
+For relu, `Uniform(0,1)` is used to make different neurons keep different kinds of memory. But for problems that only use the output of the last time step such as the adding problem, MNIST classification problem, and action recognition problem, the recurrent weights for the last IndRNN layer (caution: only the last one not all) can be initialized to be all `1` or a proper range `(1-epsilon, 1+epsilon)` where `epsilon` is a small number, since only long-term memory is needed for the output of this layer. Examples are shown in [adding.py](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/blob/master/adding/adding.py#L49).  
+
+### 2, Constraint of the recurrent weights  
+For relu, generally it can be set to `[-U_bound, U_bound]` where `U_bound=pow(args.MAG, 1.0 / seq_len)` and `MAG` can be 2 or 10 or others. If the sequence is very long, it can be `[-1, 1]` since it is very close to 1 and the precision of GPU is limited. If the sequence is short such as 20, no constraint is needed. Example of the constraint is shown at [adding.py](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/blob/master/adding/adding.py#L150). By the way, this constraint can also be implemented as a weight decay of ||max(0,|U|-U_bound)||.  
+
+### 3, Usage of batch normalization (BN)  
+Generally, over 3 layers, BN can help accelerate the training. BN can be used before the activation function or after it. In our experiments, we find it converges faster by putting BN after the activation function.
+
+### 4, Learning rate  
+In our experiments, ADAM with a learning rate of 2e-4 works well.  
+
+### 5, Weight decay  
+If weight decay is used, no need to add the recurrent weights.  
