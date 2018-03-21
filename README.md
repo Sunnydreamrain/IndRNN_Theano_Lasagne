@@ -28,3 +28,5 @@ or with options:
 Example of using GPU: `THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN' python -u adding.py --model indrnn --num_layers 6 --hidden_units 128 --use_bn_afterrnn`  
 
 For this task, the batch normalization (BN) is used. It can be used before the activation function (relu) or after it. In our experiments, it converges faster by putting BN after the activation function.  
+
+## Other tasks will come soon.
