@@ -1,19 +1,19 @@
 # IndRNN (Theano+Lasagne)
 This code is to implement the IndRNN. It is based on Theano and Lasagne.
 
-Please cite the following paper if you find it useful. 
+Please cite the following paper if you find it useful.  
 Li, Shuai, Wanqing Li, Chris Cook, Ce Zhu, and Yanbo Gao. "Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN." CVPR 2018.
 
-@article{li2018independently, 
-  title={Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN}, 
-  author={Li, Shuai and Li, Wanqing and Cook, Chris and Zhu, Ce and Gao, Yanbo}, 
-  booktitle={CVPR2018}, 
-  year={2018} 
+@article{li2018independently,  
+  title={Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN},  
+  author={Li, Shuai and Li, Wanqing and Cook, Chris and Zhu, Ce and Gao, Yanbo},  
+  booktitle={CVPR2018},  
+  year={2018}  
 } 
 
 # Usuage 
-If use GPU, add the following line to specify Theano options. 
-THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN'  
+If use GPU, add the following line to specify Theano options.  
+THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN'   
 
 ##For the adding example:   
 python -u adding.py  
