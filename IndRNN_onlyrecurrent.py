@@ -6,7 +6,7 @@ Since this only contains the recurrent part of IndRNN, fully connected layers or
 
 Please cite the following paper if you find it useful.
 
-Li, Shuai, Wanqing Li, Chris Cook, Ce Zhu, and Yanbo Gao. "Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN." CVPR 2018.
+Shuai Li, Wanqing Li, Chris Cook, Ce Zhu, and Yanbo Gao. "Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN." CVPR 2018.
 @article{li2018independently,
   title={Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN},
   author={Li, Shuai and Li, Wanqing and Cook, Chris and Zhu, Ce and Gao, Yanbo},
