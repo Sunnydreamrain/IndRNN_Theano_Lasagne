@@ -15,13 +15,13 @@ Li, Shuai, Wanqing Li, Chris Cook, Ce Zhu, and Yanbo Gao. "Independently Recurre
 If use GPU, add the following line to specify Theano options.  
 THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN'   
 
-##For the adding example:   
+## For the adding example:   
 python -u adding.py  
 Different options are available in adding.py.  
 Example: python -u adding.py --model indrnn --seq_len 100  
 Example of using GPU: THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN' python -u adding.py --model indrnn --seq_len 100  
 
-##For the pixel MNIST example:  
+## For the pixel MNIST example:  
 python -u pixelmnist.py --use_bn_afterrnn   
 or with options: 
 python -u adding.py --model indrnn --num_layers 6 --hidden_units 128 --use_bn_afterrnn  
