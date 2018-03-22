@@ -39,13 +39,22 @@ Different options are available in adding.py.
 Example: `python -u adding.py --model indrnn --seq_len 100`  
 Example of using GPU: `THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN' python -u adding.py --model indrnn --seq_len 100`  
 
-## For the pixel MNIST example:  
+## For the Sequential MNIST example:  
 `python -u pixelmnist.py --use_bn_afterrnn`   
 or with options: 
 `python -u adding.py --model indrnn --num_layers 6 --hidden_units 128 --use_bn_afterrnn`  
 Example of using GPU: `THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN' python -u adding.py --model indrnn --num_layers 6 --hidden_units 128 --use_bn_afterrnn`  
 
 For this task, the batch normalization (BN) is used. It can be used before the activation function (relu) or after it. In our experiments, it converges faster by putting BN after the activation function.  
+
+## For the language modeling example using character-level Penn Treebank (PTB-c) :  
+`python -u pixelmnist.py --data_aug --use_dropout --droprate 0.25`  
+`data_aug` here only provides different start for each training epoch to provide stable statistics for BN.  
+or using the residual model:  
+`python -u pixelmnist.py --data_aug --use_residual --num_layers --use_dropout --droprate 0.3`  
+The example code provides the very basic implementation of residual IndRNN where the number of units in all the IndRNN layers are the same and the left branch is fixed to be 1 without further using weight processing. Other network architectures can be explored which may provide better results.
+
+For this task, output is provided at each time step and can only use the information before the current time step. Therefore, the statistics (mean and variance) of the batch normalization (BN) are obtained for each time step. It is used before the activation which is more robust than putting it after the activation. The main reason is that the outputs of all the IndRNN layers at the last time step is further used as initialization of the next batch. By putting BN before the activation (which is also before the recurrent accumulation), the statistics of BN is more stable than putting BN after the activation.    
 
 ## Other tasks will come soon.
 
@@ -58,7 +67,7 @@ For relu, generally it can be set to `[-U_bound, U_bound]` where `U_bound=pow(ar
 For simplicity, the constraint can always set to `[-1, 1]` as it can keep long-term memory already and the difference in performance is small.
 
 ### 3, Usage of batch normalization (BN)  
-Generally, over 3 layers, BN can help accelerate the training. BN can be used before the activation function or after it. In our experiments, we find it converges faster by putting BN after the activation function.
+Generally, over 3 layers, BN can help accelerate the training. BN can be used before the activation function or after it. In our experiments, we find it converges faster by putting BN after the activation function. However, for tasks such as PTB_c where the output of one batch is further used as the initialization of the next batch, it is better to put BN before activation as mentioned at the above example.
 
 ### 4, Learning rate  
 In our experiments, ADAM with a learning rate of 2e-4 works well.  
