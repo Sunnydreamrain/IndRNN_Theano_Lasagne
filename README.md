@@ -83,3 +83,6 @@ Keras:
 Pytorch:  
 [https://github.com/StefOe/indrnn-pytorch](https://github.com/StefOe/indrnn-pytorch)  
 [https://github.com/theSage21/IndRNN](https://github.com/theSage21/IndRNN)  
+[https://github.com/zhangxu0307/Ind-RNN](https://github.com/zhangxu0307/Ind-RNN)  
+Chainer:  
+[https://github.com/0shimax/chainer-IndRNN](https://github.com/0shimax/chainer-IndRNN)  
