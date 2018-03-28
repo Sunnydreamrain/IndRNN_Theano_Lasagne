@@ -18,8 +18,8 @@ from lasagne.nonlinearities import softmax, rectify,tanh
 from lasagne.init import Uniform,Normal,HeNormal
 
 import opts
-from rernn_action_sep_network import build_indrnn_network as build_rnn_network
-import rernn_action_sep_network
+from Indrnn_action_network import build_indrnn_network as build_rnn_network
+import Indrnn_action_network
 
 sys.setrecursionlimit(10000)
 
@@ -35,7 +35,7 @@ outputclass=60
 indim=50#150
 lr=args.lr
 opti=lasagne.updates.adam
-U_bound=rernn_action_sep_network.U_bound
+U_bound=Indrnn_action_network.U_bound
 
 X_sym = T.tensor4('inputs')#,dtype=theano.config.floatX)
 y_sym = T.ivector('label')#,dtype=theano.config.floatX)   
