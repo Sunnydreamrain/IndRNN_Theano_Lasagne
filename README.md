@@ -33,13 +33,13 @@ pip install --upgrade https://github.com/Theano/Theano/archive/master.zip
 pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip
 ```
 
-## For the adding example:   
+## For the adding example   
 `python -u adding.py`  
 Different options are available in adding.py.  
 Example: `python -u adding.py --model indrnn --seq_len 100`  
 Example of using GPU: `THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN' python -u adding.py --model indrnn --seq_len 100`  
 
-## For the Sequential MNIST example:  
+## For the Sequential MNIST example  
 `python -u pixelmnist.py --use_bn_afterrnn`   
 or with options: 
 `python -u adding.py --model indrnn --num_layers 6 --hidden_units 128 --use_bn_afterrnn`  
@@ -47,7 +47,7 @@ Example of using GPU: `THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN' 
 
 For this task, the batch normalization (BN) is used. It can be used before the activation function (relu) or after it. In our experiments, it converges faster by putting BN after the activation function.  
 
-## For the language modeling example using character-level Penn Treebank (PTB-c) :  
+## For the language modeling example using character-level Penn Treebank (PTB-c)   
 `python -u pixelmnist.py --data_aug --use_dropout --droprate 0.25`  
 `data_aug` here only provides different start for each training epoch to provide stable statistics for BN.  
 or using the residual model:  
@@ -56,7 +56,8 @@ The example code provides the very basic implementation of residual IndRNN where
 
 For this task, output is provided at each time step and can only use the information before the current time step. Therefore, the statistics (mean and variance) of the batch normalization (BN) are obtained for each time step. It is used before the activation which is more robust than putting it after the activation. The main reason is that the outputs of all the IndRNN layers at the last time step is further used as initialization of the next batch. By putting BN before the activation (which is also before the recurrent accumulation), the statistics of BN is more stable than putting BN after the activation.    
 
-## Other tasks will come soon.
+## For the skeleton-based Action Recognition example  
+Please find details in the directoy `[action recognition](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/tree/master/action%20recognition)`.  
 
 # Considerations in implementation  
 ### 1, Initialization of the recurrent weights
@@ -74,6 +75,9 @@ In our experiments, ADAM with a learning rate of 2e-4 works well.
 
 ### 5, Weight decay  
 If weight decay is used, no need to add the recurrent weights.  
+
+### Note  
+The above considerations are just suggestions. I did not explore lots of training techniques such as training methods, initialization techniques. So better results may be achieved with other options.  
 
 # Other implementations
 Tensorflow:  
