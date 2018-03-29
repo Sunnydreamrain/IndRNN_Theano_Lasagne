@@ -11,4 +11,3 @@
    
 ### Considerations
 1, Usually sequence length of 20 is used for this dataset. It is short, so no need to impose the constraint on the recurrent weight (Similar results using it).  
-2, Usage of dropout. The dropout mask is shared over time in my implementation. Also I found that combining the droput and BN seems to work better, i.e., drop the BN output to mean.  
