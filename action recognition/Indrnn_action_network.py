@@ -36,14 +36,12 @@ gradclipvalue=10
 act=rectify
 U_bound=pow(args.MAG, 1.0 / seq_len)
 U_lowbound=pow(1.0/args.MAG, 1.0 / seq_len)
-if args.bn_drop:
-  from batch_norm_withdrop_timefirst import BatchNormLayer as dropBatchNormLayer
   
 rnnmodel=indrnn_onlyrecurrent
 
 
 ini_W=HeNormal(gain=np.sqrt(2)/np.sqrt(args.seq_len))
-if args.bn_drop or args.use_bn_afterrnn:
+if args.use_bn_afterrnn:
   ini_W=Uniform(args.ini_in2hid)
   
 def build_indrnn_network(X_sym):
@@ -61,15 +59,13 @@ def build_indrnn_network(X_sym):
       if args.conv_drop:
         net['rnn%d'%(l-1)]=DropoutLayer(net['rnn%d'%(l-1)], p=droprate, shared_axes=(0,))    
       net['rnn%d'%l]=net['rnn%d'%(l-1)]
-      if not args.bn_drop and not args.use_bn_afterrnn:
+      if not args.use_bn_afterrnn:
         net['rnn%d'%l]=BatchNormLayer(net['rnn%d'%l],beta=lasagne.init.Constant(args.ini_b),axes= (0,1))    
                
       net['rnn%d'%l]=rnnmodel(net['rnn%d'%l],hidden_units,W_hid_to_hid=Uniform(range=(hidini,U_bound)),nonlinearity=act,only_return_final=False, grad_clipping=gradclipvalue)
                          
       if args.use_bn_afterrnn:
         net['rnn%d'%l]=BatchNormLayer(net['rnn%d'%l],axes= (0,1))
-      if args.bn_drop:
-        net['rnn%d'%l]=dropBatchNormLayer(net['rnn%d'%l],axes= (0,1),droprate=droprate)
       if args.use_dropout and l%args.drop_layers==0:
         net['rnn%d'%l]=DropoutLayer(net['rnn%d'%l], p=droprate, shared_axes=(0,))        
         

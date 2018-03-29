@@ -31,7 +31,6 @@ def train_opts(parser):
   
   
   parser.add_argument('--use_dropout', action='store_true', default=False)
-  parser.add_argument('--bn_drop', action='store_true', default=False)
   parser.add_argument('--droprate', type=np.float32, default=0.1,help='lr')
   parser.add_argument('--rec_drop', action='store_true', default=False)
   parser.add_argument('--drop_layers', type=int, default=1)
