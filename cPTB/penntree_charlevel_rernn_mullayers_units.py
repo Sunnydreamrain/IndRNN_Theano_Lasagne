@@ -19,7 +19,7 @@ from IndRNN_onlyrecurrent import IndRNNLayer_onlyrecurrent as indrnn_onlyrecurre
 from BatchNorm_step_timefirst import BatchNorm_step_timefirst_Layer
 
 
-#np.set_printoptions(threshold=3000,edgeitems=50)
+np.set_printoptions(threshold=3000,edgeitems=50)
 sys.setrecursionlimit(50000)
 parser = argparse.ArgumentParser(description='IndRNN for the char level PennTreeBank Language Model')
 parser.add_argument('--hidden_units', type=int, default=2000)
@@ -28,38 +28,33 @@ parser.add_argument('--seq_len', type=int, default=50,help='seq_len')
 parser.add_argument('--num_layers', type=int, default=6,help='num_layers')
 parser.add_argument('--lr', type=np.float32, default=2e-4, help='lr')
 parser.add_argument('--act', type=str, default='relu', help='act')
-parser.add_argument('--data_aug', action='store_true', default=False, help='to start from different positions at each training epoch')
-parser.add_argument('--gradclipvalue', type=np.float32, default=10)
+parser.add_argument('--data_aug', action='store_true', default=False)
+parser.add_argument('--gradclipvalue', type=np.float32, default=10,  help='gradclipvalue')
 parser.add_argument('--MAG', type=int, default=2)
 parser.add_argument('--fix_bound', action='store_true', default=False)
 
 #bn
 parser.add_argument('--use_bn_afterrnn', action='store_true', default=False)
-parser.add_argument('--use_bn_embed', action='store_true', default=False)
 
 #drop
 parser.add_argument('--use_dropout', action='store_true', default=False)
-parser.add_argument('--use_drophiddeninput', action='store_true', default=False)
-parser.add_argument('--droprate', type=np.float32, default=0.3)
-parser.add_argument('--droplayers', type=int, default=1)
-parser.add_argument('--drop_batchax', action='store_true', default=False)
+parser.add_argument('--droprate', type=np.float32, default=0.3, help='lr')
+parser.add_argument('--droplayers', type=int, default=1,help='droplayers')
 
 #residual
 parser.add_argument('--use_residual', action='store_true', default=False)
 parser.add_argument('--residual_layers', type=int, default=2)
 parser.add_argument('--residual_block', type=int, default=3)
-parser.add_argument('--unit_factor', type=np.float32, default=1)
+parser.add_argument('--unit_factor', type=np.float32, default=1, help='lr')
 
 #weight decay
 parser.add_argument('--use_weightdecay_nohiddenW', action='store_true', default=False)
-parser.add_argument('--decayfactor', type=np.float32, default=1e-4)
+parser.add_argument('--decayfactor', type=np.float32, default=1e-4, help='decayfactor')
 
 #initialization
-parser.add_argument('--ini_in2hid', type=np.float32, default=0.005)
-parser.add_argument('--ini_b', type=np.float32, default=0.0)
+parser.add_argument('--ini_in2hid', type=np.float32, default=0.005, help='ini_in2hid')
+parser.add_argument('--ini_b', type=np.float32, default=0.0, help='ini_in2hid')
 
-#others
-parser.add_argument('--epsilon', type=np.float32, default=1e-4)
 args = parser.parse_args()
 print (args)
 
@@ -70,7 +65,6 @@ outputclass=50
 batch_size = args.batch_size
 seq_len=args.seq_len
 hidden_units=args.hidden_units
-use_bn_embed=args.use_bn_embed
 use_dropout=args.use_dropout
 lr=np.float32(args.lr)
 droprate=np.float32(args.droprate)
@@ -103,8 +97,6 @@ if args.fix_bound:
 #(2) Due to the precision of GPU, if it is rounded to a larger value, it may explode.
 
 taxdrop= (0,) 
-if args.drop_batchax:
-  taxdrop= (0,1,) 
 
 ini_W=HeNormal(gain=np.sqrt(2)/2.0)
 if args.use_bn_afterrnn:
@@ -132,8 +124,6 @@ def build_rnn_network(rnnmodel,X_sym,hid_init_sym):
     net['input0'] = InputLayer((batch_size, seq_len),X_sym)        
     net['input']=lasagne.layers.EmbeddingLayer(net['input0'],outputclass,units[0])#,W=lasagne.init.Uniform(inial_scale)      
     net['rnn0']=DimshuffleLayer(net['input'],(1,0,2)) #change to (time, batch_size,hidden_units)    
-    if use_bn_embed:
-      net['rnn0']=BatchNorm_step_timefirst_Layer(net['rnn0'],axes=(0,1),epsilon=args.epsilon )
       
     for l in range(1, num_layers+1):
       net['hiddeninput%d'%l] = InputLayer((batch_size, units[l-1]),hid_init_sym[:,acc_units[l-1]:acc_units[l]])               
@@ -146,7 +136,7 @@ def build_rnn_network(rnnmodel,X_sym,hid_init_sym):
           net['leftbranch%d' % (l - 1)] = ReshapeLayer(net['sum%d'%(l-args.residual_layers)], (batch_size * seq_len, -1))
           net['leftbranch%d' % (l - 1)] = DenseLayer(net['leftbranch%d' % (l - 1)], units[l - 1], W=ini_W, nonlinearity=None)
           net['leftbranch%d' % (l - 1)] = ReshapeLayer(net['leftbranch%d' % (l - 1)], (seq_len, batch_size, -1))
-          net['leftbranch%d' % (l - 1)] = BatchNorm_step_timefirst_Layer(net['leftbranch%d' % (l - 1)], axes=(0, 1), epsilon=args.epsilon)
+          net['leftbranch%d' % (l - 1)] = BatchNorm_step_timefirst_Layer(net['leftbranch%d' % (l - 1)], axes=(0, 1))
           print('left branch')
         else:
           net['leftbranch%d' % (l - 1)] = net['sum%d'%(l-args.residual_layers)]
@@ -156,7 +146,7 @@ def build_rnn_network(rnnmodel,X_sym,hid_init_sym):
       
       net['rnn%d'%l]=net['sum%d'%l]
       if not args.use_bn_afterrnn:
-        net['rnn%d'%l]=BatchNorm_step_timefirst_Layer(net['rnn%d'%l],axes= (0,1),beta=lasagne.init.Constant(args.ini_b),epsilon=args.epsilon)    
+        net['rnn%d'%l]=BatchNorm_step_timefirst_Layer(net['rnn%d'%l],axes= (0,1),beta=lasagne.init.Constant(args.ini_b))    
                
       ini_hid_start=0
       if act==tanh:
@@ -167,13 +157,13 @@ def build_rnn_network(rnnmodel,X_sym,hid_init_sym):
       if l==1:
         net['hid_out']=net['last_state%d'%l]
       else:
-        net['hid_out']=ConcatLayer([net['hid_out'], net['last_state%d'%l]],axis=1)
-                                             
-      if use_dropout and l%droplayers==0 and not args.bn_drop:
-        net['rnn%d'%l]=lasagne.layers.DropoutLayer(net['rnn%d'%l], p=droprate, shared_axes=taxdrop)                      
+        net['hid_out']=ConcatLayer([net['hid_out'], net['last_state%d'%l]],axis=1)     
+        
+      if use_dropout and l%droplayers==0:
+        net['rnn%d'%l]=lasagne.layers.DropoutLayer(net['rnn%d'%l], p=droprate, shared_axes=taxdrop)                                                              
 
       if args.use_bn_afterrnn:
-        net['rnn%d'%l]=BatchNorm_step_timefirst_Layer(net['rnn%d'%l],axes= (0,1),epsilon=args.epsilon)                                                 
+        net['rnn%d'%l]=BatchNorm_step_timefirst_Layer(net['rnn%d'%l],axes= (0,1))                                                 
         
     net['rnn%d'%num_layers]=DimshuffleLayer(net['rnn%d'%num_layers],(1,0,2))   
     net['reshape_rnn']=ReshapeLayer(net['rnn%d'%num_layers],(-1,units[num_layers-1]))        
@@ -252,10 +242,6 @@ for epoci in range(1,10000):
       for para in params:
         if para.name=='hidden_to_hidden.W':
           para.set_value(np.clip(para.get_value(),-1*U_bound,U_bound)) 
-    if args.use_drophiddeninput and np.random.randint(2)==1:
-      temp=np.float32(np.random.randint(2,size=(sum_units,)))
-      temp=temp[np.newaxis,:]
-      hid_init=hid_init*temp
     perp, bpc, hid_init=train_fn(x, y,hid_init,learning_rate)
 
     if np.isnan(perp):
