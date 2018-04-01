@@ -57,7 +57,7 @@ The example code provides the very basic implementation of residual IndRNN where
 For this task, output is provided at each time step and can only use the information before the current time step. Therefore, the statistics (mean and variance) of the batch normalization (BN) are obtained for each time step. It is used before the activation which is more robust than putting it after the activation. The main reason is that the outputs of all the IndRNN layers at the last time step is further used as initialization of the next batch. By putting BN before the activation (which is also before the recurrent accumulation), the statistics of BN is more stable than putting BN after the activation.    
 
 ## For the skeleton-based Action Recognition example  
-Please find details in the directoy `[action recognition](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/tree/master/action%20recognition)`.  
+Please find details in the directoy [action recognition](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/tree/master/action%20recognition).  
 
 # Considerations in implementation  
 ### 1, Initialization of the recurrent weights
