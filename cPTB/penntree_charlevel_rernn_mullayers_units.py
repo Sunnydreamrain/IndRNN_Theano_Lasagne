@@ -231,7 +231,7 @@ t_bpc=0
 count=0
 lastbpc=100
 patience=0
-patienceThre=2
+patienceThre=5
 
 for epoci in range(1,10000):  
   hid_init=np.zeros((batch_size, sum_units), dtype='float32')
