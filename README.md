@@ -68,13 +68,16 @@ For relu, generally it can be set to `[-U_bound, U_bound]` where `U_bound=pow(ar
 For simplicity, the constraint can always set to `[-1, 1]` as it can keep long-term memory already and the difference in performance is small.
 
 ### 3, Usage of batch normalization (BN)  
-Generally, over 3 layers, BN can help accelerate the training. BN can be used before the activation function or after it. In our experiments, we find it converges faster by putting BN after the activation function. However, for tasks such as PTB_c where the output of one batch is further used as the initialization of the next batch, it is better to put BN before activation as mentioned at the above example.
+Generally, over 3 layers, BN can help accelerate the training. BN can be used before the activation function or after it. In our experiments, we find it converges faster by putting BN after the activation function. However, for tasks such as PTB_c where the output of one batch is further used as the initialization of the next batch, it is better to put BN before activation as mentioned at the above example.  
 
 ### 4, Learning rate  
 In our experiments, ADAM with a learning rate of 2e-4 works well.  
 
 ### 5, Weight decay  
 If weight decay is used, no need to add the recurrent weights.  
+
+### 6, Usage of dropout  
+Dropout (if used) is applied with the same mask over time.  
 
 ### Note  
 The above considerations are just suggestions. I did not explore lots of training techniques such as training methods, initialization techniques. So better results may be achieved with other options.  
