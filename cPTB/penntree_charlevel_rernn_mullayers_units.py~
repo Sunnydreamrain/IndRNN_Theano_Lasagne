@@ -235,7 +235,6 @@ patienceThre=5
 
 for epoci in range(1,10000):  
   hid_init=np.zeros((batch_size, sum_units), dtype='float32')
-  dropindex=0
   if args.data_aug:
     dropindex=np.random.randint(seq_len*5)  
   for batchi, (x, y) in enumerate(data_iterator(train_data[dropindex:], batch_size, seq_len)):
