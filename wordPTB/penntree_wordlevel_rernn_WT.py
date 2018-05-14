@@ -26,20 +26,24 @@ parser.add_argument('--hidden_units', type=int, default=2000)
 parser.add_argument('--batch_size', type=int, default=128,help='batch_size')
 parser.add_argument('--seq_len', type=int, default=50,help='seq_len')
 parser.add_argument('--num_layers', type=int, default=6,help='num_layers')
-parser.add_argument('--lr', type=np.float32, default=2e-4, help='lr')
+parser.add_argument('--lr', type=np.float32, default=5e-4, help='lr')
 parser.add_argument('--act', type=str, default='relu', help='act')
 parser.add_argument('--data_aug', action='store_true', default=False)
 parser.add_argument('--gradclipvalue', type=np.float32, default=10,  help='gradclipvalue')
 parser.add_argument('--MAG', type=int, default=2)
 parser.add_argument('--fix_bound', action='store_true', default=False)
+parser.add_argument('--word_level', action='store_true', default=False)
+parser.add_argument('--w_tying', action='store_true', default=False)
 
 #bn
 parser.add_argument('--use_bn_afterrnn', action='store_true', default=False)
 
 #drop
 parser.add_argument('--use_dropout', action='store_true', default=False)
-parser.add_argument('--droprate', type=np.float32, default=0.3, help='lr')
+parser.add_argument('--drop_embedding', action='store_true', default=False)
+parser.add_argument('--droprate', type=np.float32, default=0.35, help='lr')
 parser.add_argument('--droplayers', type=int, default=1,help='droplayers')
+parser.add_argument('--droprate_last', type=np.float32, default=0.8, help='lr')
 
 #residual
 parser.add_argument('--use_residual', action='store_true', default=False)
@@ -54,6 +58,17 @@ parser.add_argument('--decayfactor', type=np.float32, default=1e-4, help='decayf
 #initialization
 parser.add_argument('--ini_in2hid', type=np.float32, default=0.005, help='ini_in2hid')
 parser.add_argument('--ini_b', type=np.float32, default=0.0, help='ini_in2hid')
+parser.add_argument('--ini_last', type=np.float32, default=0.04, help='ini_in2hid')
+parser.add_argument('--ini_normal', action='store_true', default=False)
+parser.add_argument('--U_std', type=np.float32, default=0.2, help='ini_in2hid')
+parser.add_argument('--U_mean', type=np.float32, default=0.4, help='ini_in2hid')
+parser.add_argument('--Heinfactor', type=np.float32, default=2.0)
+
+
+parser.add_argument('--pThre', type=int, default=20)
+parser.add_argument('--lr_decay', type=np.float32, default=0.2)
+parser.add_argument('--randstart', type=int, default=5)
+parser.add_argument('--comp_perp', action='store_true', default=False)
 
 args = parser.parse_args()
 print (args)
@@ -62,13 +77,18 @@ print (args)
 num_layers=args.num_layers
 droplayers=args.droplayers
 outputclass=50
+if args.word_level:
+  outputclass=10000
 batch_size = args.batch_size
 seq_len=args.seq_len
 hidden_units=args.hidden_units
 use_dropout=args.use_dropout
 lr=np.float32(args.lr)
 droprate=np.float32(args.droprate)
+
 opti=lasagne.updates.adam  
+
+   
 
 rnnmodel=indrnn_onlyrecurrent
 act=rectify  
@@ -76,9 +96,10 @@ if args.act=='tanh':
   act=tanh  
 
 
-
 from reader import data_iterator, ptb_raw_data
 name_dataset='ptb.char.'
+if args.word_level:
+  name_dataset='ptb.'
 def get_raw_data(dataset='ptb',data_path='data/'):
   raw_data = ptb_raw_data(data_path,filename=name_dataset)
   return raw_data
@@ -98,21 +119,25 @@ if args.fix_bound:
 
 taxdrop= (0,) 
 
-ini_W=HeNormal(gain=np.sqrt(2)/2.0)
+ini_W=HeNormal(gain=np.sqrt(2)/args.Heinfactor)
 if args.use_bn_afterrnn:
   ini_W=Normal(args.ini_in2hid)
+  
+
+ini_U=Uniform(range=(0,U_bound))
+if args.ini_normal:
+  ini_U=Normal(std=args.U_std, mean=args.U_mean)
+
   
 units=[]
 acc_units=[]
 acc_units.append(0)
 sum_units=0
-if args.unit_factor!=1 and num_layers%(args.residual_block*args.residual_layers)!=args.start_residual:
-  print ('layers should be layers = args.residual_block*args.residual_layers +1')
-  assert 2==3
+
 for l in range(num_layers):
   units_inc_factor=1
   if l>=1:
-    units_inc_factor=np.power(args.unit_factor, (l-1)//(args.residual_block*args.residual_layers))
+    units_inc_factor=np.power(args.unit_factor, (l))#//(args.residual_block*args.residual_layers))
   units.append(np.int(hidden_units*units_inc_factor))
   sum_units+=np.int(hidden_units*units_inc_factor)
   acc_units.append(sum_units)
@@ -122,9 +147,10 @@ def build_rnn_network(rnnmodel,X_sym,hid_init_sym):
     net = {}    
     
     net['input0'] = InputLayer((batch_size, seq_len),X_sym)        
-    net['input']=lasagne.layers.EmbeddingLayer(net['input0'],outputclass,units[0])#,W=lasagne.init.Uniform(inial_scale)      
-    net['rnn0']=DimshuffleLayer(net['input'],(1,0,2)) #change to (time, batch_size,hidden_units)    
-      
+    net['embed']=lasagne.layers.EmbeddingLayer(net['input0'],outputclass,units[0],W=Uniform(args.ini_last))#,W=Uniform(0.04))#,W=lasagne.init.Uniform(inial_scale)      
+    net['rnn0']=DimshuffleLayer(net['embed'],(1,0,2)) #change to (time, batch_size,hidden_units)    
+    if use_dropout and args.drop_embedding:
+      net['rnn0']=lasagne.layers.DropoutLayer(net['rnn0'], p=droprate, shared_axes=taxdrop)        
     for l in range(1, num_layers+1):
       net['hiddeninput%d'%l] = InputLayer((batch_size, units[l-1]),hid_init_sym[:,acc_units[l-1]:acc_units[l]])               
       net['rnn%d'%(l-1)]=ReshapeLayer(net['rnn%d'%(l-1)], (batch_size* seq_len, -1))          
@@ -148,10 +174,7 @@ def build_rnn_network(rnnmodel,X_sym,hid_init_sym):
       if not args.use_bn_afterrnn:
         net['rnn%d'%l]=BatchNorm_step_timefirst_Layer(net['rnn%d'%l],axes= (0,1),beta=lasagne.init.Constant(args.ini_b))    
                
-      ini_hid_start=0
-      if act==tanh:
-        ini_hid_start=-1*U_bound
-      net['rnn%d'%l]=rnnmodel(net['rnn%d'%l],units[l-1],hid_init=net['hiddeninput%d'%l],W_hid_to_hid=Uniform(range=(ini_hid_start,U_bound)),nonlinearity=act,only_return_final=False, grad_clipping=args.gradclipvalue)      
+      net['rnn%d'%l]=rnnmodel(net['rnn%d'%l],units[l-1],hid_init=net['hiddeninput%d'%l],W_hid_to_hid=ini_U,nonlinearity=act,only_return_final=False, grad_clipping=args.gradclipvalue)      
                 
       net['last_state%d'%l]=SliceLayer(net['rnn%d'%l],-1, axis=0)
       if l==1:
@@ -159,15 +182,20 @@ def build_rnn_network(rnnmodel,X_sym,hid_init_sym):
       else:
         net['hid_out']=ConcatLayer([net['hid_out'], net['last_state%d'%l]],axis=1)     
         
-      if use_dropout and l%droplayers==0:
-        net['rnn%d'%l]=lasagne.layers.DropoutLayer(net['rnn%d'%l], p=droprate, shared_axes=taxdrop)                                                              
+      if use_dropout and l%droplayers==0 and l!=num_layers:
+        net['rnn%d'%l]=lasagne.layers.DropoutLayer(net['rnn%d'%l], p=droprate, shared_axes=taxdrop)  
+      elif use_dropout and l%droplayers==0 and l==num_layers:         
+        net['rnn%d'%l]=lasagne.layers.DropoutLayer(net['rnn%d'%l], p=args.droprate_last, shared_axes=taxdrop)                                                   
 
       if args.use_bn_afterrnn:
         net['rnn%d'%l]=BatchNorm_step_timefirst_Layer(net['rnn%d'%l],axes= (0,1))                                                 
         
     net['rnn%d'%num_layers]=DimshuffleLayer(net['rnn%d'%num_layers],(1,0,2))   
-    net['reshape_rnn']=ReshapeLayer(net['rnn%d'%num_layers],(-1,units[num_layers-1]))        
-    net['out']=DenseLayer(net['reshape_rnn'],outputclass,nonlinearity=softmax)#lasagne.init.HeNormal(gain='relu'))#,W=Uniform(inial_scale)
+    net['reshape_rnn']=ReshapeLayer(net['rnn%d'%num_layers],(-1,units[num_layers-1]))   
+    if args.w_tying:     
+      net['out']=DenseLayer(net['reshape_rnn'],outputclass,W=net['embed'].W.T,nonlinearity=softmax)#lasagne.init.HeNormal(gain='relu'))#,W=Uniform(inial_scale)
+    else:
+      net['out']=DenseLayer(net['reshape_rnn'],outputclass,nonlinearity=softmax)
     return net
   
 
@@ -176,7 +204,7 @@ y_sym = T.imatrix('label')#,dtype=theano.config.floatX)
 hid_init_sym = T.matrix()#tensor3()
 
 learn_net=build_rnn_network(rnnmodel,X_sym,hid_init_sym)
- 
+
 y_sym0=y_sym.reshape((-1,))
 prediction,hid_rec_init = lasagne.layers.get_output([learn_net['out'],learn_net['hid_out']],deterministic=False) # {X_sym:X_sym,hid_init_sym:hid_init_sym},                        
 loss = lasagne.objectives.categorical_crossentropy(prediction, y_sym0).mean()
@@ -229,15 +257,14 @@ learning_rate=np.float32(lr)
 t_prep=0
 t_bpc=0
 count=0
-lastbpc=100
+lastbpc=100000000
 patience=0
-patienceThre=5
-
+patienceThre=args.pThre
 for epoci in range(1,10000):  
   hid_init=np.zeros((batch_size, sum_units), dtype='float32')
   dropindex=0
   if args.data_aug:
-    dropindex=np.random.randint(seq_len*5)  
+    dropindex=np.random.randint(seq_len*args.randstart)  
   for batchi, (x, y) in enumerate(data_iterator(train_data[dropindex:], batch_size, seq_len)):
     if rnnmodel==indrnn_onlyrecurrent:
       for para in params:
@@ -270,6 +297,8 @@ for epoci in range(1,10000):
     count+=1
   print ('bn_validprep','bn_validbpc',t_prep/count, t_bpc/count )
   validbpc=t_bpc/count
+  if args.comp_perp:
+    validbpc=t_prep/count
   count=0
   t_prep=0
   t_bpc=0
@@ -281,7 +310,6 @@ for epoci in range(1,10000):
     t_bpc+=bpc
     count+=1
   print ('testprep','testbpc',t_prep/count, t_bpc/count )
-  test_acc=t_prep/count  
   count=0
   t_prep=0
   t_bpc=0
@@ -294,17 +322,18 @@ for epoci in range(1,10000):
     t_bpc+=bpc
     count+=1
   print ('bn_testprep','bn_testbpc',t_prep/count, t_bpc/count )
-  #test_acc=t_prep/count  
   count=0
   t_prep=0
   t_bpc=0  
   
   if (validbpc <lastbpc):
-    best_para=lasagne.layers.get_all_param_values(learn_net['out'])  
+    best_para0=lasagne.layers.get_all_param_values(learn_net['out'])  
+    best_para=np.copy(best_para0)
     lastbpc=  validbpc
     patience=0
   elif patience>patienceThre:
-    learning_rate=np.float32(learning_rate*0.2)
+    learning_rate=np.float32(learning_rate*args.lr_decay)
+    Is_firstepoc=True
     print ('learning rate',learning_rate)
     lasagne.layers.set_all_param_values(learn_net['out'], best_para)
     patience=0
@@ -313,5 +342,5 @@ for epoci in range(1,10000):
   else:
     patience+=1
     
-save_name='indrnn_cPTB'+str(seq_len)
+save_name='indrnn_wordPTB'+str(seq_len)
 np.savez(save_name, *lasagne.layers.get_all_param_values(learn_net['out']))
