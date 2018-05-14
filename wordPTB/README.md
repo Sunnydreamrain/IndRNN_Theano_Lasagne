@@ -13,4 +13,6 @@
 
 >> `data_aug` here only provides different start for each training epoch to provide stable statistics for BN.  
 
-3, This is a rather small dataset for word-level language modelling, so initialization matters. The example running configuration may not be best, but shows a better performance than the existing models (except the neural architecture search which constructs new models while learning). 
+3, This is a rather small dataset for word-level language modelling, so initialization matters. The example running configuration may not be best, but shows a better performance than the existing models (except the neural architecture search which constructs new models while learning).   
+
+![alt text](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/blob/master/wordPTB/results/wPTB.PNG)
