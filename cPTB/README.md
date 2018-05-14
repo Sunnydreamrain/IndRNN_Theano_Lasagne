@@ -15,4 +15,5 @@
 
 >> `data_aug` here only provides different start for each training epoch to provide stable statistics for BN.  
 
->> Longer sequence performs better in our experiments, showing that longer dependency helps.   
+3, Longer sequence performs better in our experiments, showing that longer dependency helps.   
+![alt text](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/blob/master/cPTB/results/cPTB.PNG)
