@@ -92,7 +92,7 @@ Tensorflow:
 Keras:  
 [https://github.com/titu1994/Keras-IndRNN](https://github.com/titu1994/Keras-IndRNN)  
 Pytorch:  
-[https://github.com/Sunnydreamrain/IndRNN_pytorch](https://github.com/Sunnydreamrain/IndRNN_pytorch)
+[https://github.com/Sunnydreamrain/IndRNN_pytorch](https://github.com/Sunnydreamrain/IndRNN_pytorch)  
 [https://github.com/StefOe/indrnn-pytorch](https://github.com/StefOe/indrnn-pytorch)  
 [https://github.com/theSage21/IndRNN](https://github.com/theSage21/IndRNN)  
 [https://github.com/zhangxu0307/Ind-RNN](https://github.com/zhangxu0307/Ind-RNN)  
