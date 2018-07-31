@@ -4,11 +4,12 @@ This code is to implement the [IndRNN](https://arxiv.org/abs/1803.04831). It is 
 Please cite the following paper if you find it useful.  
 [Shuai Li, Wanqing Li, Chris Cook, Ce Zhu, and Yanbo Gao. "Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN." CVPR 2018.](https://arxiv.org/abs/1803.04831)
 
-@article{li2018independently,  
-  title={Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN},  
-  author={Li, Shuai and Li, Wanqing and Cook, Chris and Zhu, Ce and Gao, Yanbo},  
-  booktitle={CVPR2018},  
-  year={2018}  
+@inproceedings{li2018independently,
+  title={Independently recurrent neural network (indrnn): Building A longer and deeper RNN},
+  author={Li, Shuai and Li, Wanqing and Cook, Chris and Zhu, Ce and Gao, Yanbo},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={5457--5466},
+  year={2018}
 } 
 
 # Summary  
