@@ -1,5 +1,5 @@
 # Independently Recurrent Neural Networks
-This code is to implement the [IndRNN](https://arxiv.org/abs/1803.04831). It is based on Theano and Lasagne.
+This code is to implement the [IndRNN](https://arxiv.org/abs/1803.04831). It is based on Theano and Lasagne. Please refer to [this one](https://github.com/Sunnydreamrain/IndRNN_pytorch) for pytorch.
 
 Please cite the following paper if you find it useful.  
 [Shuai Li, Wanqing Li, Chris Cook, Ce Zhu, and Yanbo Gao. "Independently Recurrent Neural Network (IndRNN): Building A Longer and Deeper RNN." CVPR 2018.](https://arxiv.org/abs/1803.04831)
@@ -92,6 +92,7 @@ Tensorflow:
 Keras:  
 [https://github.com/titu1994/Keras-IndRNN](https://github.com/titu1994/Keras-IndRNN)  
 Pytorch:  
+[https://github.com/Sunnydreamrain/IndRNN_pytorch](https://github.com/Sunnydreamrain/IndRNN_pytorch)
 [https://github.com/StefOe/indrnn-pytorch](https://github.com/StefOe/indrnn-pytorch)  
 [https://github.com/theSage21/IndRNN](https://github.com/theSage21/IndRNN)  
 [https://github.com/zhangxu0307/Ind-RNN](https://github.com/zhangxu0307/Ind-RNN)  
