@@ -4,8 +4,7 @@
   (1) Use your own data reader. Change the code at [Indrnn_action_train.py](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne/blob/master/action%20recognition/Indrnn_action_train.py#L69)   
   (2) Use the provided data reader. Generate the data ndarray. Download the NTU RGB+D dataset, change the skeleton into a ndarray, and keep the length and label of each data entry.  
 2, Run the code. Add the Theano flags if using GPU. `THEANO_FLAGS='floatX=float32,device=cuda0,mode=FAST_RUN' `
-   `python -u Indrnn_action_train.py --use_bn_afterrnn --use_dropout --droprate 0.25 --use_weightdecay_nohiddenW`  
-   or `python -u Indrnn_action_train.py --bn_drop --droprate 0.25 --use_weightdecay_nohiddenW`  
+   `python -u Indrnn_action_train.py --use_bn_afterrnn --use_dropout --droprate 0.25 --use_weightdecay_nohiddenW` 
    If use the CV test setting, add `--test_CV`. For example:  
    `python -u Indrnn_action_train.py --test_CV --use_bn_afterrnn --use_dropout --droprate 0.1 --use_weightdecay_nohiddenW` 
    
